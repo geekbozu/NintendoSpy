@@ -35,5 +35,7 @@
 
     <stick xname="cstick_x" yname="cstick_y" image="C-stick.png"
            x="222" y="201" width="31" height="31" xrange="16" yrange="16"/>
-
+  
+  <rangestick xname="lstick_x" yname="lstick_y" image="C-stick.png"
+         x="0" y="0" width="31" height="31" xto="41" yto="41" xfrom="31" yfrom="31"/>
 </skin>

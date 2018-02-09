@@ -27,6 +27,7 @@ namespace NintendoSpy
         List <Tuple <Skin.Button,Image>> _buttonsWithImages = new List <Tuple <Skin.Button,Image>> ();
         List <Tuple <Skin.RangeButton,Image>> _rangeButtonsWithImages = new List <Tuple <Skin.RangeButton,Image>> ();
         List <Tuple <Skin.AnalogStick,Image>> _sticksWithImages = new List <Tuple <Skin.AnalogStick,Image>> ();
+        List <Tuple<Skin.RangeStick, Image>> _rangeSticksWithImages = new List<Tuple<Skin.RangeStick, Image>>();
 
         // The triggers images are embedded inside of a Grid element so that we can properly mask leftwards and upwards
         // without the image aligning to the top left of its element.
@@ -131,6 +132,18 @@ namespace NintendoSpy
                 }
             }
             
+            foreach (var button in _skin.RangeSticks)
+            {
+                if (bgIsActive(skinBackground.Name, button.Config.TargetBackgrounds, button.Config.IgnoreBackgrounds))
+                {
+                    var image = getImageForElement(button.Config);
+                    _rangeSticksWithImages.Add(new Tuple<Skin.RangeStick, Image>(button, image));
+                    image.Visibility = Visibility.Hidden;
+                    ControllerGrid.Children.Add(image);
+                }
+            }
+
+
             foreach (var stick in _skin.AnalogSticks) {
                 if (bgIsActive(skinBackground.Name, stick.Config.TargetBackgrounds, stick.Config.IgnoreBackgrounds))
                 {
@@ -280,6 +293,22 @@ namespace NintendoSpy
                 var visible = button.Item1.From <= value && value <= button.Item1.To;
 
                 button.Item2.Visibility = visible ? Visibility.Visible : Visibility.Hidden ;
+            }
+
+            foreach (var button in _rangeSticksWithImages)
+            {
+                if (!newState.Analogs.ContainsKey(button.Item1.XName)) continue;
+                if (!newState.Analogs.ContainsKey(button.Item1.YName)) continue;
+
+                var Xvalue = ( newState.Analogs[button.Item1.XName]) * 128;
+                var Yvalue = (newState.Analogs[button.Item1.YName]) * 128;
+
+                var visible = (button.Item1.XFrom <= Math.Abs(Xvalue) && Math.Abs(Xvalue) <= button.Item1.XTo) || (button.Item1.YFrom <= Math.Abs(Yvalue) && Math.Abs(Yvalue) <= button.Item1.YTo);
+                if (Math.Abs(Xvalue) > button.Item1.XTo || Math.Abs(Yvalue) > button.Item1.YTo)
+                {
+                    visible = false;
+                }
+                button.Item2.Visibility = visible ? Visibility.Visible : Visibility.Hidden;
             }
 
             foreach (var stick in _sticksWithImages)

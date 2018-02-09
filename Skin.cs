@@ -46,6 +46,14 @@ namespace NintendoSpy
             public float From, To;
         }
 
+        public class RangeStick
+        {
+            public ElementConfig Config;
+            public string XName,YName;
+            public float XFrom, XTo;
+            public float YFrom, YTo;
+        }
+
         public class AnalogStick {
             public ElementConfig Config;
             public string XName, YName;
@@ -79,6 +87,9 @@ namespace NintendoSpy
 
         List <RangeButton> _rangeButtons = new List <RangeButton> ();
         public IReadOnlyList <RangeButton> RangeButtons { get { return _rangeButtons; } }
+
+        List<RangeStick> _rangeSticks = new List<RangeStick>();
+        public IReadOnlyList<RangeStick> RangeSticks { get { return _rangeSticks; } }
 
         List <AnalogStick> _analogSticks = new List <AnalogStick> ();
         public IReadOnlyList <AnalogStick> AnalogSticks { get { return _analogSticks; } }
@@ -176,6 +187,28 @@ namespace NintendoSpy
                     To = to
                 });
             }
+
+            foreach (var elem in doc.Root.Elements("rangestick"))
+            {
+                var XFrom = readFloatConfig(elem, "xfrom");
+                var XTo = readFloatConfig(elem, "xto");
+                var YFrom = readFloatConfig(elem, "yfrom");
+                var YTo = readFloatConfig(elem, "yto");
+
+                if (XFrom > XTo) throw new ConfigParseException("RangeStick 'xfrom' field cannot be greater than 'xto' field.");
+                if (YFrom > YTo) throw new ConfigParseException("RangeStick 'yfrom' field cannot be greater than 'yto' field.");
+                _rangeSticks.Add(new RangeStick
+                {
+                    Config = parseStandardConfig(skinPath, elem),
+                    XName = readStringAttr(elem, "xname"),
+                    YName = readStringAttr(elem, "yname"),
+                    XTo = readFloatConfig(elem, "xto"),
+                    XFrom = readFloatConfig(elem, "xfrom"),
+                    YFrom = readFloatConfig(elem, "yfrom"),
+                    YTo = readFloatConfig(elem, "yto")
+                });
+            }
+
 
             foreach (var elem in doc.Root.Elements ("stick")) {
                 _analogSticks.Add (new AnalogStick {
